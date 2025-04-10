@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v4
@@ -30,23 +32,15 @@ jobs:
       working-directory: build
       run: ctest --output-on-failure -C Release
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
+    - name: Create Release and Upload Asset
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/http_server
-        asset_name: http_server
-        asset_content_type: application/octet-stream
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        # Extract version from tag (e.g., v1.0.1 -> 1.0.1)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        
+        # Create release
+        gh release create "v${VERSION}" \
+          --title "Release ${VERSION}" \
+          --generate-notes \
+          build/http_server
