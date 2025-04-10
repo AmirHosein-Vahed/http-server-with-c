@@ -10,6 +10,7 @@
 typedef struct {
     int server_fd;
     uint16_t port;
+    volatile int running;  // Flag to control server loop
 } http_server_t;
 
 // Server lifecycle functions

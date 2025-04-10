@@ -4,23 +4,30 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
 int http_server_init(http_server_t* server, uint16_t port) {
+    // Validate port
+    if (port == 0) {
+        return -1;
+    }
+    
     server->port = port;
+    server->running = 0;
     
     // Create socket
     server->server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server->server_fd < 0) {
-        perror("Failed to create socket");
         return -1;
     }
 
     // Set socket options
     int opt = 1;
     if (setsockopt(server->server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        perror("Failed to set socket options");
+        close(server->server_fd);
+        server->server_fd = -1;
         return -1;
     }
 
@@ -32,7 +39,8 @@ int http_server_init(http_server_t* server, uint16_t port) {
 
     // Bind socket
     if (bind(server->server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        perror("Failed to bind socket");
+        close(server->server_fd);
+        server->server_fd = -1;
         return -1;
     }
 
@@ -47,14 +55,21 @@ void http_server_start(http_server_t* server) {
     }
 
     printf("Server listening on port %d...\n", server->port);
+    server->running = 1;
 
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
-    while (1) {
+    while (server->running) {
+        // Set a timeout so we can check running flag
+        struct timeval tv = {.tv_sec = 1, .tv_usec = 0};
+        setsockopt(server->server_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        
         int client_fd = accept(server->server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
         if (client_fd < 0) {
-            perror("Failed to accept connection");
+            if (server->running) {
+                perror("Failed to accept connection");
+            }
             continue;
         }
 
@@ -68,6 +83,7 @@ void http_server_start(http_server_t* server) {
 }
 
 void http_server_stop(http_server_t* server) {
+    server->running = 0;
     if (server->server_fd >= 0) {
         close(server->server_fd);
         server->server_fd = -1;
