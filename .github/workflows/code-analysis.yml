@@ -23,6 +23,7 @@ jobs:
         cppcheck --enable=all --error-exitcode=1 \
                 --suppress=missingInclude \
                 --suppress=unusedFunction \
+                --suppress=missingIncludeSystem \
                 src/ include/ tests/
 
     - name: Install clang-format
