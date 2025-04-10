@@ -1,21 +1,24 @@
 #include "http_server.h"
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 
 static http_server_t server;
 
-void handle_signal(int signum) {
+void handle_signal(int signum)
+{
     printf("\nShutting down server...\n");
     http_server_stop(&server);
     exit(0);
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[])
+{
     uint16_t port = DEFAULT_PORT;
-    
+
     // Allow port override from command line
-    if (argc > 1) {
+    if (argc > 1)
+    {
         port = (uint16_t)atoi(argv[1]);
     }
 
@@ -24,7 +27,8 @@ int main(int argc, const char *argv[]) {
     signal(SIGTERM, handle_signal);
 
     // Initialize and start the server
-    if (http_server_init(&server, port) != 0) {
+    if (http_server_init(&server, port) != 0)
+    {
         fprintf(stderr, "Failed to initialize server\n");
         return 1;
     }

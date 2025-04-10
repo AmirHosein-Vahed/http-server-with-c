@@ -7,11 +7,10 @@
 #define DEFAULT_PORT 8080
 #define MAX_PENDING_CONNECTIONS 10
 
-typedef struct
-{
+typedef struct {
     int server_fd;
     uint16_t port;
-    volatile int running;    // Flag to control server loop
+    volatile int running;  // Flag to control server loop
 } http_server_t;
 
 // Server lifecycle functions
@@ -22,4 +21,4 @@ void http_server_stop(http_server_t *server);
 // Request handling
 void handle_client_connection(int client_fd);
 
-#endif // HTTP_SERVER_H
+#endif  // HTTP_SERVER_H
