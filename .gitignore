@@ -1,0 +1,28 @@
+# Ignore build artifacts
+/build/
+/*.o
+/*.out
+/*.exe
+
+# Ignore dependency files
+/*.d
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Ignore compiled libraries
+*.so
+*.a
+*.lib
+*.dll
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# Ignore Git-specific files
+*.orig
