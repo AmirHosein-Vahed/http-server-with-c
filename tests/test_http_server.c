@@ -1,5 +1,5 @@
-#include "unity.h"
 #include "http_server.h"
+#include "unity.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -37,7 +37,7 @@ void test_server_initialization(void)
 
 void test_server_initialization_invalid_port(void)
 {
-    int result = http_server_init(&server, 0);  // Invalid port
+    int result = http_server_init(&server, 0); // Invalid port
     TEST_ASSERT_EQUAL_INT(-1, result);
 }
 
@@ -75,7 +75,7 @@ void test_server_accept_connection(void)
     pthread_create(&server_thread, NULL, run_server, &server);
 
     // Give the server time to start
-    usleep(100000);  // 100ms
+    usleep(100000); // 100ms
 
     // Try to connect
     int client_sock = connect_to_server(TEST_PORT);

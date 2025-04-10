@@ -95,8 +95,8 @@ void http_server_start(http_server_t *server)
         struct timeval tv = {.tv_sec = 1, .tv_usec = 0};
         setsockopt(server->server_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
-        int client_fd = accept(server->server_fd, (struct sockaddr *)&client_addr,
-                             &client_addr_len);
+        int client_fd =
+            accept(server->server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
         if (client_fd < 0)
         {
             if (server->running)
@@ -133,12 +133,11 @@ void handle_client_connection(int client_fd)
     {
         printf("Received request:\n%s\n", buffer);
 
-        const char *response =
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/plain\r\n"
-            "Content-Length: 13\r\n"
-            "\r\n"
-            "Hello, World!";
+        const char *response = "HTTP/1.1 200 OK\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: 13\r\n"
+                               "\r\n"
+                               "Hello, World!";
 
         write(client_fd, response, strlen(response));
     }
