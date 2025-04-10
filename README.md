@@ -30,7 +30,20 @@ This project is a simple HTTP server implemented in C. It is designed to handle 
     make
     ```
 
+## Testing
 
+The project uses Unity testing framework for unit tests. To run the tests:
+
+1. Build the tests (already done as part of main build)
+2. Run the tests:
+    ```bash
+    ctest
+    ```
+
+Or you can run the test executable directly:
+```bash
+./http_server_tests
+```
 
 ## Usage
 1. Run the server:
