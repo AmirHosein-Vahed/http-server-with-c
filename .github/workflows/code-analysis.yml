@@ -1,0 +1,33 @@
+name: Code Analysis
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install cppcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck
+
+    - name: Run cppcheck
+      run: |
+        cppcheck --enable=all --error-exitcode=1 \
+                --suppress=missingInclude \
+                --suppress=unusedFunction \
+                src/ include/ tests/
+
+    - name: Install clang-format
+      run: sudo apt-get install -y clang-format
+
+    - name: Check code formatting
+      run: |
+        find . -name "*.c" -o -name "*.h" | xargs clang-format -n --Werror
