@@ -53,8 +53,8 @@ static int connect_to_server(uint16_t port) {
 
 // Thread function to run server
 static void* run_server(void* arg) {
-    http_server_t* server = (http_server_t*)arg;
-    http_server_start(server);
+    http_server_t* srv = (http_server_t*)arg;
+    http_server_start(srv);
     return NULL;
 }
 

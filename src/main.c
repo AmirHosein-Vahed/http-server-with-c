@@ -11,7 +11,7 @@ void handle_signal(int signum) {
     exit(0);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, const char *argv[]) {
     uint16_t port = DEFAULT_PORT;
     
     // Allow port override from command line
