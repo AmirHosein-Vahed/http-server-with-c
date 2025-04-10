@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2025
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,33 +21,37 @@
  */
 
 #include "http_server.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <unistd.h>
 
-int http_server_init(http_server_t* server, uint16_t port) {
+int http_server_init(http_server_t *server, uint16_t port)
+{
     // Validate port
-    if (port == 0) {
+    if (port == 0)
+    {
         return -1;
     }
-    
+
     server->port = port;
     server->running = 0;
-    
+
     // Create socket
     server->server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server->server_fd < 0) {
+    if (server->server_fd < 0)
+    {
         return -1;
     }
 
     // Set socket options
     int opt = 1;
-    if (setsockopt(server->server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(server->server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
         close(server->server_fd);
         server->server_fd = -1;
         return -1;
@@ -60,7 +64,8 @@ int http_server_init(http_server_t* server, uint16_t port) {
     address.sin_port = htons(port);
 
     // Bind socket
-    if (bind(server->server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+    if (bind(server->server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    {
         close(server->server_fd);
         server->server_fd = -1;
         return -1;
@@ -69,9 +74,11 @@ int http_server_init(http_server_t* server, uint16_t port) {
     return 0;
 }
 
-void http_server_start(http_server_t* server) {
+void http_server_start(http_server_t *server)
+{
     // Listen for connections
-    if (listen(server->server_fd, MAX_PENDING_CONNECTIONS) < 0) {
+    if (listen(server->server_fd, MAX_PENDING_CONNECTIONS) < 0)
+    {
         perror("Failed to listen");
         return;
     }
@@ -82,21 +89,23 @@ void http_server_start(http_server_t* server) {
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
-    while (server->running) {
+    while (server->running)
+    {
         // Set a timeout so we can check running flag
         struct timeval tv = {.tv_sec = 1, .tv_usec = 0};
         setsockopt(server->server_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-        
-        int client_fd = accept(server->server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
-        if (client_fd < 0) {
-            if (server->running) {
+
+        int client_fd = accept(server->server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+        if (client_fd < 0)
+        {
+            if (server->running)
+            {
                 perror("Failed to accept connection");
             }
             continue;
         }
 
-        printf("New connection from %s:%d\n", 
-               inet_ntoa(client_addr.sin_addr), 
+        printf("New connection from %s:%d\n", inet_ntoa(client_addr.sin_addr),
                ntohs(client_addr.sin_port));
 
         handle_client_connection(client_fd);
@@ -104,23 +113,27 @@ void http_server_start(http_server_t* server) {
     }
 }
 
-void http_server_stop(http_server_t* server) {
+void http_server_stop(http_server_t *server)
+{
     server->running = 0;
-    if (server->server_fd >= 0) {
+    if (server->server_fd >= 0)
+    {
         close(server->server_fd);
         server->server_fd = -1;
     }
 }
 
-void handle_client_connection(int client_fd) {
+void handle_client_connection(int client_fd)
+{
     char buffer[MAX_REQUEST_SIZE] = {0};
     ssize_t bytes_read = read(client_fd, buffer, MAX_REQUEST_SIZE - 1);
-    
-    if (bytes_read > 0) {
+
+    if (bytes_read > 0)
+    {
         printf("Received request:\n%s\n", buffer);
 
         // Send a simple HTTP response
-        const char* response = "HTTP/1.1 200 OK\r\n"
+        const char *response = "HTTP/1.1 200 OK\r\n"
                              "Content-Type: text/plain\r\n"
                              "Content-Length: 13\r\n"
                              "\r\n"
